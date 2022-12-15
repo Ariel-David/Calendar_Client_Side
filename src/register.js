@@ -12,7 +12,7 @@ const initRegister = () => {
     
     if (validateEmail(user.email)) {
        if(validatePassword(user.password)){
-      fetch(serverAddress + "/auth/register", {
+      fetch(serverAddress + "/register", {
         method: "POST",
         body: JSON.stringify({ email: user.email, password: user.password }),
         headers: {

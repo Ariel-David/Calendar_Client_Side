@@ -12,7 +12,7 @@ const initLogin = (key) => {
 
     // validateEmail(user.email) && validatePassword(user.password)
     if (true) {
-      await fetch(serverAddress + "/auth/login", {
+      await fetch(serverAddress + "/login", {
         method: "POST",
         body: JSON.stringify({ email: user.email, password: user.password }),
         headers: {
