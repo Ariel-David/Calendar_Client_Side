@@ -89,7 +89,7 @@ body{
 	justify-content: center;
 	align-items: center;
 	min-height: 100vh;
-	font-family: 'Jost', sans-serif;
+	font: small-caps bold, sans-serif;
 	background: linear-gradient(to bottom, #ffffff, #e9d5ce, #dab6a5);
 }
 .main{
@@ -238,3 +238,19 @@ button{
 	color: #eb4577;
 	font-weight: bold;
 }
+/* .social-login {	
+	position: absolute;
+	height: 140px;
+	width: 160px;
+	text-align: center;
+	bottom: 0px;
+	right: 0px;
+	color: #fff;
+} */
+
+/* .social-icons {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+} */
+
