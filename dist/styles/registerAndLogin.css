@@ -90,22 +90,18 @@ body{
 	align-items: center;
 	min-height: 100vh;
 	font: small-caps bold, sans-serif;
-	background: linear-gradient(to bottom, #ffffff, #e9d5ce, #dab6a5);
+	/* background: linear-gradient(to bottom, #31405a, #373842, #383a3f); */
 }
 .main{
 	margin: auto;
   	margin-bottom: 100px;
   	margin-right: 40px;
   	margin-left: 23%;
-	width: 650px;
-	height: 600px;
+	width: 660px;
+	height:550px;
 	background: url("https://doc-08-2c-docs.googleusercontent.com/docs/securesc/68c90smiglihng9534mvqmq1946dmis5/fo0picsp1nhiucmc0l25s29respgpr4j/1631524275000/03522360960922298374/03522360960922298374/1Sx0jhdpEpnNIydS4rnN4kHSJtU1EyWka?e=view&authuser=0&nonce=gcrocepgbb17m&user=03522360960922298374&hash=tfhgbs86ka6divo3llbvp93mg4csvb38") no-repeat center/ cover;	overflow: hidden;
-	border-radius: 100px;
-	box-shadow: 5px 20px 50px rgb(99, 39, 1);
-}
-#login-form{
-	margin-top:33px;
-	;
+	/* border-radius: 100px; */
+	box-shadow: 5px 20px 50px rgb(55, 69, 62);
 }
 #chk{
 	display: none;
@@ -117,32 +113,32 @@ body{
 	height: 100%;
 }
 #lab{
-	color: rgb(70, 51, 26);
-	font-size: 2.5em;
+	color: rgb(1, 14, 32);
+	font-size: 2.1em;
 	justify-content: center;
 	display: flex;
-	margin: 15px 0px 0px auto;
+	margin: 30px 0px 0px auto;
 	font-weight: bolder;
 	cursor: pointer;
-	transition: .5s ease-in-out;
+	transition: .9s ease-in-out;
 }
 #lab-welcome{
-	color: rgb(70, 51, 26);
+	color: rgb(29, 16, 73);
 	font-size: 2.5em;
 	justify-content: center;
 	display: flex;
 	margin: 60px 0px 0px auto;
-	font-weight: bolder;
+	/* font-weight: bolder; */
 	cursor: pointer;
-	transition: .5s ease-in-out;
+	transition: .9s ease-in-out;
 }
 #register-email{
 	width: 70%;
 	height: 50px;
-	background: #b0e2f0;
+	background: #e9ecef;
 	justify-content: center;
 	display: flex;
-	margin: 50px auto auto auto;
+	margin: 30px auto auto auto;
 	border: none;
 	outline: none;
 	border-radius: 5px;
@@ -150,10 +146,10 @@ body{
 #register-password{
 	width: 70%;
 	height: 50px;
-	background: #b0e2f0;
+	background: #e9ecef;
 	justify-content: center;
 	display: flex;
-	margin: 50px auto auto auto;
+	margin: 30px auto auto auto;
 	border: none;
 	outline: none;
 	border-radius: 5px;
@@ -185,7 +181,8 @@ button{
 	width: 70%;
 	height: 40px;
 	margin: auto;
-	margin-top: 50px;
+	margin-top: 30px;
+	margin-bottom: 20px;
 	justify-content: center;
 	display: block;
 	font-size: 1em;
@@ -199,27 +196,27 @@ button{
 
 .login{
 	height: 600px;
-	background: #f8feff;
-	border-radius: 60% / 15%;
-	transform: translateY(-180px);
+	background: #9cc7c7;
+	border-radius: 60% / 20%;
+	transform: translateY(-155px);
 	transition: .8s ease-in-out;
 }
 .signup button{
-	background: #6a1f08;
+	background: #275756;
 	color: rgb(255, 255, 255);
 }
 .signup button:hover{
-	background: #db8166;
+	background: #2f9b99;
 }
 .login button{
-	background: #6a1f08;
+	background:#195251;
 	color: #fff;
 }
 .login button:hover{
-	background: #db8166;
+	background: #2f9b99;
 }
 .login label{
-	color: #3491ab;
+	color: #ffffff;
 	transform: scale(.8);
 }
 
@@ -230,7 +227,7 @@ button{
 	transform: scale(1);	
 }
 #chk:checked ~ .signup label{
-	transform: scale(.4);
+	transform: scale(.7);
 }
 .regMessage{
 	position:absolute; left:50px; 
