@@ -94,15 +94,14 @@ body{
 }
 .main{
 	margin: auto;
-	/* margin-top: 100px; */
   	margin-bottom: 100px;
   	margin-right: 40px;
   	margin-left: 23%;
 	width: 650px;
-	height: 510px;
+	height: 600px;
 	background: url("https://doc-08-2c-docs.googleusercontent.com/docs/securesc/68c90smiglihng9534mvqmq1946dmis5/fo0picsp1nhiucmc0l25s29respgpr4j/1631524275000/03522360960922298374/03522360960922298374/1Sx0jhdpEpnNIydS4rnN4kHSJtU1EyWka?e=view&authuser=0&nonce=gcrocepgbb17m&user=03522360960922298374&hash=tfhgbs86ka6divo3llbvp93mg4csvb38") no-repeat center/ cover;	overflow: hidden;
 	border-radius: 100px;
-	box-shadow: 5px 20px 50px #000;
+	box-shadow: 5px 20px 50px rgb(99, 39, 1);
 }
 #login-form{
 	margin-top:33px;
@@ -206,18 +205,18 @@ button{
 	transition: .8s ease-in-out;
 }
 .signup button{
-	background: #08556a;
+	background: #6a1f08;
 	color: rgb(255, 255, 255);
 }
 .signup button:hover{
-	background: #2988a2;
+	background: #db8166;
 }
 .login button{
-	background: #08556a;
+	background: #6a1f08;
 	color: #fff;
 }
 .login button:hover{
-	background: #2988a2;
+	background: #db8166;
 }
 .login label{
 	color: #3491ab;
