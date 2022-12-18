@@ -1,7 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
 * {
-  margin: 0;
-  padding: 0;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
 }
@@ -19,7 +17,7 @@ list-style: none;
 }
 
 .navMenu a {
-  color: #f6f4e6;
+  color: #000000;
   text-decoration: none;
   padding: 30px;
   font-size: 1.2em;
@@ -92,19 +90,23 @@ body{
 	align-items: center;
 	min-height: 100vh;
 	font-family: 'Jost', sans-serif;
-	background: linear-gradient(to bottom, #9ab0b3, #a2cfdc, #daf0f6);
+	background: linear-gradient(to bottom, #ffffff, #e9d5ce, #dab6a5);
 }
 .main{
 	margin: auto;
 	/* margin-top: 100px; */
   	margin-bottom: 100px;
   	margin-right: 40px;
-  	margin-left: 33%;
-	width: 390px;
+  	margin-left: 23%;
+	width: 650px;
 	height: 510px;
 	background: url("https://doc-08-2c-docs.googleusercontent.com/docs/securesc/68c90smiglihng9534mvqmq1946dmis5/fo0picsp1nhiucmc0l25s29respgpr4j/1631524275000/03522360960922298374/03522360960922298374/1Sx0jhdpEpnNIydS4rnN4kHSJtU1EyWka?e=view&authuser=0&nonce=gcrocepgbb17m&user=03522360960922298374&hash=tfhgbs86ka6divo3llbvp93mg4csvb38") no-repeat center/ cover;	overflow: hidden;
-	border-radius: 10px;
+	border-radius: 100px;
 	box-shadow: 5px 20px 50px #000;
+}
+#login-form{
+	margin-top:33px;
+	;
 }
 #chk{
 	display: none;
@@ -116,7 +118,17 @@ body{
 	height: 100%;
 }
 #lab{
-	color: rgb(8, 74, 91);
+	color: rgb(70, 51, 26);
+	font-size: 2.5em;
+	justify-content: center;
+	display: flex;
+	margin: 15px 0px 0px auto;
+	font-weight: bolder;
+	cursor: pointer;
+	transition: .5s ease-in-out;
+}
+#lab-welcome{
+	color: rgb(70, 51, 26);
 	font-size: 2.5em;
 	justify-content: center;
 	display: flex;
