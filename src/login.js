@@ -23,11 +23,11 @@ const initLogin = (key) => {
           return response.status == 200 ? response.json() : null;
         })
         .then(async (data) => {
-          if (data != null) {
-            key.token = data.token;
+          // if (data != null) {
+            // key.token = data.token;
             window.history.pushState({}, "", "/archive");
             await urlLocationHandler();
-          }
+          // }
         });
     }
   });

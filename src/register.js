@@ -30,8 +30,6 @@ const initRegister = () => {
         "Email input is not valid!";
     }
   });
-
-
 };
 
 function registerAlert(response) {
