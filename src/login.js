@@ -25,15 +25,14 @@ const initLogin = (key) => {
         .then(async (data) => {
           console.log(data);
            if (data != null) {
-            key.token = data.token;
+             key.token = data.token;
             window.history.pushState({}, "", "/archive");
             await urlLocationHandler();
-           }
+            }
         });
     }
   });
 };
-
 
 export { initLogin };
 

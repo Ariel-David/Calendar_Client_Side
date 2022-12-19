@@ -88,7 +88,7 @@ body{
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	min-height: 100vh;
+	min-height: 200px;
 	font: small-caps bold, sans-serif;
 	/* background: linear-gradient(to bottom, #31405a, #373842, #383a3f); */
 }
