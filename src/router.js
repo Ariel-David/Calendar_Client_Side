@@ -6,8 +6,8 @@ import { initCreateDirectory } from "./createDirectory";
 import { initEdit } from "./edit";
 
 const initRouter = () => {
-  
-  // create document click that watches the nav links only
+
+  ///create document click that watches the nav links only
   document.addEventListener("click", (event) => {
     const { target } = event;
     if (!target.matches("nav a")) {

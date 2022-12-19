@@ -67,7 +67,7 @@ const initArchive = async (key) => {
           if (isDocument(file)) {
             $("#content").append(documentHtml(file));
 
-            // we add listeners for each button dynamically
+            /// we add listeners for each button dynamically
             $(`#edit-${file.id}`).on("click", async () => {
               const role = findRole(objs, file.docId);
 
