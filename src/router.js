@@ -41,7 +41,7 @@ const urlRoutes = {
     description: "This is the register & login page",
     init: () => {
       initRegister();
-      initLogin();
+      initLogin(key);
     },
   },
   "/about": {
