@@ -1,4 +1,4 @@
-import { initArchive } from "./calander";
+import { initArchive } from "./archive";
 import { initLogin } from "./login";
 import { initRegister } from "./register";
 import { initCreateDocument } from "./createDocument";
@@ -6,6 +6,7 @@ import { initCreateDirectory } from "./createDirectory";
 import { initEdit } from "./edit";
 
 const initRouter = () => {
+  
   // create document click that watches the nav links only
   document.addEventListener("click", (event) => {
     const { target } = event;
@@ -54,12 +55,12 @@ const urlRoutes = {
     title: "Contact | " + urlPageTitle,
     description: "This is the contact page",
   },
-  "/calander": {
-    template: "templates/calander.html",
-    title: "Calander | " + urlPageTitle,
+  "/archive": {
+    template: "templates/archive.html",
+    title: "Archive | " + urlPageTitle,
     description: "This is the contact page",
     init: () => {
-      initCalander(key);
+      initArchive(key);
     },
   },
   "/edit": {

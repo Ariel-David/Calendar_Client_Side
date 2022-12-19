@@ -4,7 +4,6 @@ import { serverAddress } from "./constants";
 import { update} from './edit';
 // import { update } from './doc-functions';
 
-
 let stompClient;
 const socketFactory = () => {
   return new SockJS(serverAddress + "/ws");

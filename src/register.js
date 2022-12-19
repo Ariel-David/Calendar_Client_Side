@@ -9,7 +9,6 @@ const initRegister = () => {
       password: $("#register-password").val(),
     };
 
-
     if (validateEmail(user.email)) {
       if (validatePassword(user.password)) {
         fetch(serverAddress + "/auth/register", {

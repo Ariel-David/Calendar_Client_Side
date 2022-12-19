@@ -9,8 +9,7 @@ import { urlLocationHandler } from "./router";
 let directoryId;
 let currentFile;
 
-const initCalander = async (key) => {
-
+const initArchive = async (key) => {
 
   directoryId = history.state.fid;
 
@@ -86,7 +85,7 @@ const initCalander = async (key) => {
             $("#content").append(directoryHtml(file));
             // we add listeners for each button dynamically
             $(`#open-${file.id}`).on("click", async () => {
-              window.history.pushState({ fid: file.id, title: file.name }, "", `/calander`);
+              window.history.pushState({ fid: file.id, title: file.name }, "", `/archive`);
               urlLocationHandler();
             });
           }
@@ -114,7 +113,7 @@ const initCalander = async (key) => {
               },
             }).then((response) => {
               console.log(response.body);
-              window.history.pushState({}, "", "/calander");
+              window.history.pushState({}, "", "/archive");
             })
           });
 
@@ -164,7 +163,7 @@ const displayOptionsToMove = (keyToken, id, title) => {
             }).then((response) => {
 
               console.log("update dir: " + response.body);
-              window.history.pushState({}, "", "/calander");
+              window.history.pushState({}, "", "/archive");
               document.getElementById(`#move-btn-${file.id}`).style.visibility = 'hidden';
 
             })
@@ -211,4 +210,4 @@ const findRole = (objs, docId) => {
   }
 }
 
-export { initCalander };
+export { initArchive };
