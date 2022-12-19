@@ -1,4 +1,4 @@
-import { initArchive } from "./archive";
+import { initArchive } from "./calander";
 import { initLogin } from "./login";
 import { initRegister } from "./register";
 import { initCreateDocument } from "./createDocument";
@@ -54,12 +54,12 @@ const urlRoutes = {
     title: "Contact | " + urlPageTitle,
     description: "This is the contact page",
   },
-  "/archive": {
-    template: "templates/archive.html",
-    title: "Archive | " + urlPageTitle,
+  "/calander": {
+    template: "templates/calander.html",
+    title: "Calander | " + urlPageTitle,
     description: "This is the contact page",
     init: () => {
-      initArchive(key);
+      initCalander(key);
     },
   },
   "/edit": {
