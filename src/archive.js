@@ -23,7 +23,13 @@ const initArchive = async (key) => {
   nav.init();
 
 // view
-dp.startDate = "2021-03-25";
+const date = new Date();
+let day = date.getDate();
+let month = date.getMonth() + 1;
+let year = date.getFullYear();
+let currentDate = `${year}-${month}-${day}`;
+console.log(currentDate); // "17-6-2022"
+dp.startDate = currentDate;
 dp.viewType = "Week";
 
 // event creating
@@ -38,19 +44,16 @@ dp.onTimeRangeSelected = async function (args) {
   const form = [
     {name: "Access", id: "eventAccess", type: "select", options:accessibility},
     {name: "Title", id: "title"},
-    {name: "Start", id: "time", type: "datetime"},
+    {name: "Start", id: "start", type: "datetime"},
     {name: "End", id: "end", type: "datetime"},
     {name: "Location", id: "location"},
     {name: "description", id: "Description"},
   ];
   
   const modal = await DayPilot.Modal.form(form, {time:args.start, end:args.end});
-  console.log(modal.result.time.value);
-  var timeStart = new Date(modal.result.time);
-  var timeEnd = new Date(modal.result.end);
-  modal.result.duration = (timeEnd - timeStart)/ 1000 / 60 / 60
-  modal.result.date = modal.result.time.value.substring(0, 10);
-  modal.result.time = modal.result.time.value.substring(11) + "+01:00"
+  console.log(modal.result.start.toString() + "Z");
+  modal.result.start = modal.result.start.toString() + "Z";
+  modal.result.end = modal.result.end.toString() + "Z";
   console.log(modal.result);
   dp.clearSelection();
   fetch(serverAddress + "/event/new", {
@@ -97,13 +100,14 @@ dp.onEventClick = async function (args) {
 
 dp.init();
 
-let route = "/event/getBetweenDates";
-let body = JSON.stringify({})
-body = JSON.stringify({email:email})
-
-fetch(serverAddress + route, {
-  method: "POST",
-  body: body,
+let route = "/event/getBetweenDates?";
+console.log("start:" +dp.visibleStart().toString() + "end: "+dp.visibleEnd().toString());
+fetch(serverAddress + route+new URLSearchParams({
+  startDate: dp.visibleStart().toString()+"Z",
+  endDate: dp.visibleEnd().toString()+"Z",
+})
+, {
+  method: "GET",
   headers: {
     "Content-Type": "application/json",
     token: key.token,
@@ -112,6 +116,17 @@ fetch(serverAddress + route, {
   .then((response) => {
     console.log(response);
     return response.status == 200 ? response.json() : null;
+  }).then((events)=>{
+    console.log(events)
+    for(let event of events){
+      var e = new DayPilot.Event({
+      start: new DayPilot.Date(event.start),
+      end: new DayPilot.Date(event.end),
+      id: event.id,
+      text: event.title
+});
+    dp.events.add(e);
+    }
   })
 
 var e = new DayPilot.Event({
