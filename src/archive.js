@@ -28,17 +28,46 @@ dp.startDate = "2021-03-25";
 dp.viewType = "Week";
 
 // event creating
-dp.onTimeRangeSelected = function (args) {
-    var name = prompt("New event name:", "Event");
-    if (!name) return;
-    var e = new DayPilot.Event({
-        start: args.start,
-        end: args.end,
-        id: DayPilot.guid(),
-        text: name
-    });
-    dp.events.add(e);
-    dp.clearSelection();
+dp.onTimeRangeSelected = async function (args) {
+
+  console.log(args);
+  const accessibility = [
+    {name: "Private", id: "PRIVATE"},
+    {name: "Public", id: "PUBLIC"}
+  ];
+
+  const form = [
+    {name: "Access", id: "eventAccess", type: "select", options:accessibility},
+    {name: "Title", id: "title"},
+    {name: "Start", id: "time", type: "datetime"},
+    {name: "End", id: "end", type: "datetime"},
+    {name: "Location", id: "location"},
+    {name: "description", id: "Description"},
+  ];
+  
+  const modal = await DayPilot.Modal.form(form, {time:args.start, end:args.end});
+  console.log(modal.result.time.value);
+  var timeStart = new Date(modal.result.time);
+  var timeEnd = new Date(modal.result.end);
+  modal.result.duration = (timeEnd - timeStart)/ 1000 / 60 / 60
+  modal.result.date = modal.result.time.value.substring(0, 10);
+  modal.result.time = modal.result.time.value.substring(11) + "+01:00"
+  console.log(modal.result);
+  dp.clearSelection();
+  fetch(serverAddress + "/event/new", {
+          method: "POST",
+          body: JSON.stringify(modal.result),
+          headers: {
+            "Content-Type": "application/json",
+            token: key.token,
+    },
+  }).then((response) => {
+    if (response.status == 200) {
+      console.log("event is ok");
+      window.history.pushState({}, "", "/archive");
+      urlLocationHandler();
+    }
+  });
 };
 
 dp.onEventClick = async function (args) {
@@ -52,8 +81,8 @@ dp.onEventClick = async function (args) {
 
   const form = [
       {name: "Text", id: "text"},
-      {name: "Start", id: "start", type: "datetime"},
-      {name: "End", id: "end", type: "datetime"},
+      {name: "time", id: "time", type: "time"},
+      {name: "day", id: "day", type: "date"},
       {name: "Color", id: "barColor", type: "select", options: colors},
   ];
 
