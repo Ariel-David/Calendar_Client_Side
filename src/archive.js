@@ -7,19 +7,11 @@ import {DayPilot} from "@daypilot/daypilot-lite-javascript";
 import { serverAddress } from "./constants";
 import { urlLocationHandler } from "./router";
 
-let directoryId;
-let currentFile;
-
 const initArchive = async (key) => {
   var dp = new DayPilot.Calendar("dp");
   dp.eventDeleteHandling = "Update";
   var nav = new DayPilot.Navigator("nav");
   nav.selectMode = "week";
-  nav.onTimeRangeSelected = function(args) {
-      dp.startDate = args.start;
-      // load events
-      dp.update();
-  };
   nav.init();
 
 // view
@@ -71,31 +63,48 @@ dp.onTimeRangeSelected = async function (args) {
     }
   });
 };
-
+//show and update
 dp.onEventClick = async function (args) {
+  console.log(args.e.data)
 
-  const colors = [
-      {name: "Blue", id: "#3c78d8"},
-      {name: "Green", id: "#6aa84f"},
-      {name: "Yellow", id: "#f1c232"},
-      {name: "Red", id: "#cc0000"},
+  const accessibility = [
+    {name: "Private", id: "PRIVATE"},
+    {name: "Public", id: "PUBLIC"}
   ];
 
   const form = [
-      {name: "Text", id: "text"},
-      {name: "time", id: "time", type: "time"},
-      {name: "day", id: "day", type: "date"},
-      {name: "Color", id: "barColor", type: "select", options: colors},
+    {name: "Access", id: "eventAccess", type: "select", options:accessibility},
+    {name: "Title", id: "title"},
+    {name: "Start", id: "start", type: "datetime"},
+    {name: "End", id: "end", type: "datetime"},
+    {name: "Location", id: "location"},
+    {name: "description", id: "description"},
   ];
 
   const modal = await DayPilot.Modal.form(form, args.e.data);
-
+  modal.result.start = modal.result.start.toString() + "Z";
+  modal.result.end = modal.result.end.toString() + "Z";
+  console.log(modal.result);
   if (modal.canceled) {
       return;
   }
-
-  dp.events.update(modal.result);
-
+  fetch(serverAddress + "/event/update?eventId=" + modal.result.id, {
+    method: "PUT",
+    body: JSON.stringify(modal.result),
+    headers: {
+      "Content-Type": "application/json",
+      token: key.token,
+    },
+  }).then((response) => {
+    console.log("update response: ", response.body)
+    if (response.status == 200) {
+      fillCalendar(dp, key);
+      console.log("deletion success");
+    } else {
+      alert("update failed!");
+      args.preventDefault();
+    }
+  });
 }
 //delete
 dp.onEventDelete = function (args) {
@@ -124,6 +133,7 @@ fillCalendar(dp, key);
 }
 
 const fillCalendar = (dp, key) => {
+  dp.events.list = [];
   let route = "/event/getBetweenDates?";
 console.log("start:" +dp.visibleStart().toString() + "end: "+dp.visibleEnd().toString());
 fetch(serverAddress + route+new URLSearchParams({
@@ -147,7 +157,11 @@ fetch(serverAddress + route+new URLSearchParams({
       start: new DayPilot.Date(event.start),
       end: new DayPilot.Date(event.end),
       id: event.id,
-      text: event.title
+      title: event.title,
+      description:event.description,
+      location:event.location,
+      eventAccess:event.eventAccess,
+      text:event.title
 });
     dp.events.add(e);
     }
