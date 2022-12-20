@@ -97,10 +97,34 @@ dp.onEventClick = async function (args) {
   dp.events.update(modal.result);
 
 }
+//delete
+dp.onEventDelete = function (args) {
+  console.log(args.e.data);
+  fetch(serverAddress + "/event/delete?eventId=" + args.e.data.id, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      token: key.token,
+    },
+  }).then((response) => {
+    console.log("delete response: ", response.body)
+    if (response.status == 200) {
+      fillCalendar(dp, key);
+      console.log("deletion success");
+    } else {
+      alert("cant delete this event!");
+      args.preventDefault();
+    }
+  });
+}
 
 dp.init();
 
-let route = "/event/getBetweenDates?";
+fillCalendar(dp, key);
+}
+
+const fillCalendar = (dp, key) => {
+  let route = "/event/getBetweenDates?";
 console.log("start:" +dp.visibleStart().toString() + "end: "+dp.visibleEnd().toString());
 fetch(serverAddress + route+new URLSearchParams({
   startDate: dp.visibleStart().toString()+"Z",
@@ -127,15 +151,7 @@ fetch(serverAddress + route+new URLSearchParams({
 });
     dp.events.add(e);
     }
-  })
-
-var e = new DayPilot.Event({
-    start: new DayPilot.Date("2021-03-25T12:00:00"),
-    end: new DayPilot.Date("2021-03-25T12:00:00").addHours(3),
-    id: DayPilot.guid(),
-    text: "Special event"
-});
-dp.events.add(e);
+  });
 }
 
 export { initArchive };
