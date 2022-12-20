@@ -12,6 +12,11 @@ const initArchive = async (key) => {
   dp.eventDeleteHandling = "Update";
   var nav = new DayPilot.Navigator("nav");
   nav.selectMode = "week";
+  nav.onTimeRangeSelected = async function (args) {
+    dp.startDate = args.start;
+    dp.update();
+    fillCalendar(dp, key);
+  }
   nav.init();
 
 // view
@@ -61,8 +66,7 @@ dp.onTimeRangeSelected = async function (args) {
   }).then((response) => {
     if (response.status == 200) {
       console.log("event is ok");
-      window.history.pushState({}, "", "/archive");
-      urlLocationHandler();
+      fillCalendar(dp, key);
     }
   });
 };
