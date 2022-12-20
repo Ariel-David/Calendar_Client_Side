@@ -34,20 +34,23 @@ dp.onTimeRangeSelected = async function (args) {
   ];
 
   const form = [
-    {name: "Access", id: "eventAccess", type: "select", options:accessibility},
-    {name: "Title", id: "title"},
-    {name: "Start", id: "start", type: "datetime"},
-    {name: "End", id: "end", type: "datetime"},
+    {name: "Access", id: "eventAccess", type: "select", options:accessibility, onValidate: validateEventAccess},
+    {name: "Title", id: "title", onValidate: validateTitle},
+    {name: "Start - if empty takes current day", id: "start", type: "datetime", onValidate: validateDate},
+    {name: "End - if empty takes current day", id: "end", type: "datetime", onValidate: validateDate},
     {name: "Location", id: "location"},
     {name: "description", id: "Description"},
   ];
-  
-  const modal = await DayPilot.Modal.form(form, {time:args.start, end:args.end});
+  console.log(args.start)
+  const modal = await DayPilot.Modal.form(form, {start:args.start, end:args.end});
+  dp.clearSelection();
+  if (modal.canceled) {
+    return;
+  }
   console.log(modal.result.start.toString() + "Z");
   modal.result.start = modal.result.start.toString() + "Z";
   modal.result.end = modal.result.end.toString() + "Z";
   console.log(modal.result);
-  dp.clearSelection();
   fetch(serverAddress + "/event/new", {
           method: "POST",
           body: JSON.stringify(modal.result),
@@ -73,21 +76,21 @@ dp.onEventClick = async function (args) {
   ];
 
   const form = [
-    {name: "Access", id: "eventAccess", type: "select", options:accessibility},
-    {name: "Title", id: "title"},
-    {name: "Start", id: "start", type: "datetime"},
-    {name: "End", id: "end", type: "datetime"},
+    {name: "Access", id: "eventAccess", type: "select", options:accessibility, onValidate: validateEventAccess},
+    {name: "Title", id: "title", onValidate: validateTitle},
+    {name: "Start - if empty takes current day", id: "start", type: "datetime", onValidate: validateDate},
+    {name: "End - if empty takes current day", id: "end", type: "datetime", onValidate: validateDate},
     {name: "Location", id: "location"},
     {name: "description", id: "description"},
   ];
 
   const modal = await DayPilot.Modal.form(form, args.e.data);
+  if (modal.canceled) {
+    return;
+  }
   modal.result.start = modal.result.start.toString() + "Z";
   modal.result.end = modal.result.end.toString() + "Z";
   console.log(modal.result);
-  if (modal.canceled) {
-      return;
-  }
   fetch(serverAddress + "/event/update?eventId=" + modal.result.id, {
     method: "PUT",
     body: JSON.stringify(modal.result),
@@ -168,4 +171,28 @@ fetch(serverAddress + route+new URLSearchParams({
   });
 }
 
+const validateDate = (args) => {
+  console.log(args)
+  var value = args.value;
+  if (value == null) {
+    args.valid = false;
+    args.message = "Date required";
+  }
+}
+
+const validateTitle = (args) => {
+  var value = args.value || "";
+  if (value.trim().length === 0) {
+    args.valid = false;
+    args.message = "Text required";
+  } 
+}
+
+const validateEventAccess = (args) => {
+  var value = args.value;
+  if (value == null) {
+    args.valid = false;
+    args.message = "Access required";
+  }
+}
 export { initArchive };
