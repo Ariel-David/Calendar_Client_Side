@@ -160,8 +160,8 @@ fetch(serverAddress + route+new URLSearchParams({
     console.log(response);
     return response.status == 200 ? response.json() : null;
   }).then((events)=>{
-    console.log(events)
-    for(let event of events){
+    console.log(events.response)
+    for(let event of events.response){
       var e = new DayPilot.Event({
       start: new DayPilot.Date(event.start),
       end: new DayPilot.Date(event.end),
