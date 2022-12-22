@@ -6,16 +6,16 @@ import {DayPilot} from "@daypilot/daypilot-lite-javascript";
 
 import { serverAddress } from "./constants";
 import { urlLocationHandler } from "./router";
-
+var dp;
 const initArchive = async (key) => {
-  var dp = new DayPilot.Calendar("dp");
+  dp = new DayPilot.Calendar("dp");
   dp.eventDeleteHandling = "Update";
   var nav = new DayPilot.Navigator("nav");
   nav.selectMode = "week";
   nav.onTimeRangeSelected = async function (args) {
     dp.startDate = args.start;
     dp.update();
-    fillCalendar(dp, key);
+    fillCalendar(key);
   }
   nav.init();
 
@@ -66,7 +66,7 @@ dp.onTimeRangeSelected = async function (args) {
   }).then((response) => {
     if (response.status == 200) {
       console.log("event is ok");
-      fillCalendar(dp, key);
+      fillCalendar(key);
     }
   });
 };
@@ -107,7 +107,7 @@ dp.onEventClick = async function (args) {
   }).then((response) => {
     console.log("update response: ", response.body)
     if (response.status == 200) {
-      fillCalendar(dp, key);
+      fillCalendar(key);
       console.log("deletion success");
     } else {
       alert("update failed!");
@@ -127,7 +127,7 @@ dp.onEventDelete = function (args) {
   }).then((response) => {
     console.log("delete response: ", response.body)
     if (response.status == 200) {
-      fillCalendar(dp, key);
+      fillCalendar(key);
       console.log("deletion success");
     } else {
       alert("cant delete this event!");
@@ -138,10 +138,10 @@ dp.onEventDelete = function (args) {
 
 dp.init();
 
-fillCalendar(dp, key);
+fillCalendar(key);
 }
 
-const fillCalendar = (dp, key) => {
+const fillCalendar = (key) => {
   dp.events.list = [];
   let route = "/event/getBetweenDates?";
 console.log("start:" +dp.visibleStart().toString() + "end: "+dp.visibleEnd().toString());
@@ -231,28 +231,34 @@ const getRoles = async (eventId, key) => {
       li.appendChild(statusSpan);
       const span = document.createElement("span");
       span.classList.add("badge", role.roleType);
+      span.setAttribute("onclick", `userRoleClicked(${eventId}, "${role.user.id}", "${key.token}")`);
       span.appendChild(document.createTextNode(role.roleType));
       li.appendChild(span);
       usersHtml += li.outerHTML;
     }
   });
+  usersHtml += `<label for="newGuestEmail">New guest:</label><input id="GuestEmailInput" type="text" id="newGuestEmail" name="newGuestEmail">`;
+  const guestButton = document.createElement("button");
+  guestButton.appendChild(document.createTextNode("Invite Guest"));
+  guestButton.setAttribute("onclick", `inviteGuestClicked(${eventId}, "${key.token}")`);
+  usersHtml += guestButton.outerHTML;
   usersHtml += `</ul>`;
   console.log(usersHtml);
   return usersHtml;
 }
 
-const removeUser = (eventId, userEmail, token) => {
+const removeUser = (eventId, userEmail, myToken) => {
   console.log("removing user");
   fetch(serverAddress + "/event/removeUser?eventId=" + eventId + "&userEmail=" + userEmail, {
-    method: "DELETE",
+    method: "PATCH",
     headers: {
       "Content-Type": "application/json",
-      token: token,
+      token: myToken,
     },
   }).then((response) => {
     console.log("delete role response: ", response.body)
     if (response.status == 200) {
-      fillCalendar(dp, key);
+      fillCalendar({token:myToken});
       console.log("deletion role success");
     } else {
       alert("cant delete this role!");
@@ -260,5 +266,47 @@ const removeUser = (eventId, userEmail, token) => {
     }
   });
 }
+
+const inviteGuest = (eventId, myToken) => {
+  console.log("inviting guest");
+  fetch(serverAddress + "/event/new/role?eventId=" + eventId + "&userEmail=" + $("#GuestEmailInput").val(), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      token: myToken,
+    },
+  }).then((response) => {
+    console.log("invite guest response: ", response.body)
+    if (response.status == 200) {
+      fillCalendar({token:myToken});
+      console.log("inviting guess success");
+    } else {
+      alert("error inviting this user!");
+      args.preventDefault();
+    }
+  });
+}
+
+const changeUserRole = (eventId, userId, myToken) => {
+  console.log("changing user role");
+  fetch(serverAddress + "/event/update/role/type?eventId=" + eventId + "&userId=" + userId, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      token: myToken,
+    },
+  }).then((response) => {
+    console.log("change user role response: ", response.body)
+    if (response.status == 200) {
+      fillCalendar({token:myToken});
+      console.log("change user role success");
+    } else {
+      alert("error change user role for this user!");
+      args.preventDefault();
+    }
+  });
+}
 window.removeUserClicked = removeUser;
+window.inviteGuestClicked = inviteGuest;
+window.userRoleClicked = changeUserRole;
 export { initArchive };
