@@ -191,3 +191,27 @@
   .current {
 	font-weight: bold;
   }
+
+.badge.ORGANIZER {
+    background-color: purple;
+}
+
+.badge.EDITOR {
+    background-color: blue;
+}
+
+.badge.GUEST {
+    background-color: green;
+}
+
+.badge.APPROVED {
+	background-color: green;
+}
+
+.badge.DECLINED {
+	background-color: red;
+}
+
+.badge.TENTATIVE {
+	background-color: grey;
+}

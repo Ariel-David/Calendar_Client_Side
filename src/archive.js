@@ -44,7 +44,7 @@ dp.onTimeRangeSelected = async function (args) {
     {name: "Start - if empty takes current day", id: "start", type: "datetime", onValidate: validateDate},
     {name: "End - if empty takes current day", id: "end", type: "datetime", onValidate: validateDate},
     {name: "Location", id: "location"},
-    {name: "description", id: "Description"},
+    {name: "description", id: "description"},
   ];
   console.log(args.start)
   const modal = await DayPilot.Modal.form(form, {start:args.start, end:args.end});
@@ -78,7 +78,8 @@ dp.onEventClick = async function (args) {
     {name: "Private", id: "PRIVATE"},
     {name: "Public", id: "PUBLIC"}
   ];
-
+  let usersHtml = await getRoles(args.e.data.id, key)
+  
   const form = [
     {name: "Access", id: "eventAccess", type: "select", options:accessibility, onValidate: validateEventAccess},
     {name: "Title", id: "title", onValidate: validateTitle},
@@ -86,6 +87,7 @@ dp.onEventClick = async function (args) {
     {name: "End - if empty takes current day", id: "end", type: "datetime", onValidate: validateDate},
     {name: "Location", id: "location"},
     {name: "description", id: "description"},
+    {name: "users", id: "users", type: "html", html:usersHtml}
   ];
 
   const modal = await DayPilot.Modal.form(form, args.e.data);
@@ -169,7 +171,7 @@ fetch(serverAddress + route+new URLSearchParams({
       location:event.location,
       eventAccess:event.eventAccess,
       text:event.title
-});
+    });
     dp.events.add(e);
     }
   });
@@ -199,4 +201,64 @@ const validateEventAccess = (args) => {
     args.message = "Access required";
   }
 }
+
+const getRoles = async (eventId, key) => {
+  let usersHtml = `<ul class="list-group" id="active-users">`;
+  await fetch(serverAddress + "/event/getUsers?eventId=" + eventId, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      token: key.token,
+    },
+  }).then((response) => {
+    return response.status == 200 ? response.json() : null;
+  }).then((roles) => {
+    console.log("get users response: ", roles)
+    for (let index in roles) {
+      let role = roles[index];
+      const li = document.createElement("li");
+      li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+      const trash = document.createElement("img");
+      trash.src = "./images/trash.png";
+      trash.setAttribute("width", `30px`);
+      trash.setAttribute("height", `30px`);
+      trash.setAttribute("onclick", `removeUserClicked(${eventId}, "${role.user.email}", "${key.token}")`);
+      li.appendChild(trash);
+      li.appendChild(document.createTextNode(role.user.email));
+      const statusSpan = document.createElement("span");
+      statusSpan.classList.add("badge", role.statusType);
+      statusSpan.appendChild(document.createTextNode(role.statusType));
+      li.appendChild(statusSpan);
+      const span = document.createElement("span");
+      span.classList.add("badge", role.roleType);
+      span.appendChild(document.createTextNode(role.roleType));
+      li.appendChild(span);
+      usersHtml += li.outerHTML;
+    }
+  });
+  usersHtml += `</ul>`;
+  console.log(usersHtml);
+  return usersHtml;
+}
+
+const removeUser = (eventId, userEmail, token) => {
+  console.log("removing user");
+  fetch(serverAddress + "/event/removeUser?eventId=" + eventId + "&userEmail=" + userEmail, {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      token: token,
+    },
+  }).then((response) => {
+    console.log("delete role response: ", response.body)
+    if (response.status == 200) {
+      fillCalendar(dp, key);
+      console.log("deletion role success");
+    } else {
+      alert("cant delete this role!");
+      args.preventDefault();
+    }
+  });
+}
+window.removeUserClicked = removeUser;
 export { initArchive };
