@@ -1,8 +1,37 @@
 import $ from "jquery";
 import { validateEmail, validatePassword } from "./validations";
 import { serverAddress } from "./constants";
+import { Button } from "bootstrap";
+import {urlLocationHandler} from "./router";
 
-const initRegister = () => {
+const initRegister = async (key) => {
+  const CLIENT_ID = "2298388bcf5985aa7bcb";
+
+  $("#gitHub-button").on("click",(event) =>{
+    window.location.assign("https://github.com/login/oauth/authorize?scope=user:email&client_id=" + CLIENT_ID);
+  });
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(urlSearchParams.entries());
+  console.log(params.code);
+  fetch(serverAddress + "/auth/gitHub?code=" + params.code, {
+    method: "POST",
+    body: JSON.stringify(),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  }).then((response) => {
+    return response.status == 200 ? response.json() : null;
+  })
+  .then(async (data) => {
+    console.log(data);
+     if (data != null) {
+      key.token = data.token;
+      window.history.pushState({}, "", "/archive");
+      await urlLocationHandler();
+      }
+  });
+
+
   $(document).on("click", "#register-button", async () => {
     const user = {
       email: $("#register-email").val(),
@@ -42,5 +71,6 @@ function registerAlert(response) {
       "User is already registered! please log in";
   }
 }
+
 
 export { initRegister };
