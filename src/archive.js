@@ -6,16 +6,16 @@ import {DayPilot} from "@daypilot/daypilot-lite-javascript";
 
 import { serverAddress } from "./constants";
 import { urlLocationHandler } from "./router";
-
+var dp;
 const initArchive = async (key) => {
-  var dp = new DayPilot.Calendar("dp");
+  dp = new DayPilot.Calendar("dp");
   dp.eventDeleteHandling = "Update";
   var nav = new DayPilot.Navigator("nav");
   nav.selectMode = "week";
   nav.onTimeRangeSelected = async function (args) {
     dp.startDate = args.start;
     dp.update();
-    fillCalendar(dp, key);
+    fillCalendar(key);
   }
   nav.init();
 
@@ -44,7 +44,7 @@ dp.onTimeRangeSelected = async function (args) {
     {name: "Start - if empty takes current day", id: "start", type: "datetime", onValidate: validateDate},
     {name: "End - if empty takes current day", id: "end", type: "datetime", onValidate: validateDate},
     {name: "Location", id: "location"},
-    {name: "description", id: "Description"},
+    {name: "description", id: "description"},
   ];
   console.log(args.start)
   const modal = await DayPilot.Modal.form(form, {start:args.start, end:args.end});
@@ -66,7 +66,7 @@ dp.onTimeRangeSelected = async function (args) {
   }).then((response) => {
     if (response.status == 200) {
       console.log("event is ok");
-      fillCalendar(dp, key);
+      fillCalendar(key);
     }
   });
 };
@@ -78,7 +78,8 @@ dp.onEventClick = async function (args) {
     {name: "Private", id: "PRIVATE"},
     {name: "Public", id: "PUBLIC"}
   ];
-
+  let usersHtml = await getRoles(args.e.data.id, key)
+  
   const form = [
     {name: "Access", id: "eventAccess", type: "select", options:accessibility, onValidate: validateEventAccess},
     {name: "Title", id: "title", onValidate: validateTitle},
@@ -86,6 +87,7 @@ dp.onEventClick = async function (args) {
     {name: "End - if empty takes current day", id: "end", type: "datetime", onValidate: validateDate},
     {name: "Location", id: "location"},
     {name: "description", id: "description"},
+    {name: "users", id: "users", type: "html", html:usersHtml}
   ];
 
   const modal = await DayPilot.Modal.form(form, args.e.data);
@@ -105,7 +107,7 @@ dp.onEventClick = async function (args) {
   }).then((response) => {
     console.log("update response: ", response.body)
     if (response.status == 200) {
-      fillCalendar(dp, key);
+      fillCalendar(key);
       console.log("deletion success");
     } else {
       alert("update failed!");
@@ -125,7 +127,7 @@ dp.onEventDelete = function (args) {
   }).then((response) => {
     console.log("delete response: ", response.body)
     if (response.status == 200) {
-      fillCalendar(dp, key);
+      fillCalendar(key);
       console.log("deletion success");
     } else {
       alert("cant delete this event!");
@@ -136,16 +138,37 @@ dp.onEventDelete = function (args) {
 
 dp.init();
 
-fillCalendar(dp, key);
+await getSharedCalendars(key.token);
+fillCalendar(key);
+
+$("#shareCalendarButton").on("click", () => {
+  let email = $("#shareCalendarEmailInput").val();
+  fetch(serverAddress + "/sharing/share?userEmail=" + email, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      token: key.token,
+    },
+  }).then((response) => {
+    console.log("delete response: ", response.body)
+    if (response.status == 200) {
+      console.log("successfully invited user");
+    } else {
+      alert("cant share calendar with this user!");
+    }
+  });
+})
 }
 
-const fillCalendar = (dp, key) => {
+const fillCalendar = (key) => {
   dp.events.list = [];
-  let route = "/event/getBetweenDates?";
+  let route = "/event/getCalendarsBetweenDates?";
+  let emails = getCheckedCalendars();
 console.log("start:" +dp.visibleStart().toString() + "end: "+dp.visibleEnd().toString());
 fetch(serverAddress + route+new URLSearchParams({
   startDate: dp.visibleStart().toString()+"Z",
   endDate: dp.visibleEnd().toString()+"Z",
+  usersEmails: emails.join(","),
 })
 , {
   method: "GET",
@@ -158,8 +181,8 @@ fetch(serverAddress + route+new URLSearchParams({
     console.log(response);
     return response.status == 200 ? response.json() : null;
   }).then((events)=>{
-    console.log(events)
-    for(let event of events){
+    console.log(events.response)
+    for(let event of events.response){
       var e = new DayPilot.Event({
       start: new DayPilot.Date(event.start),
       end: new DayPilot.Date(event.end),
@@ -169,7 +192,7 @@ fetch(serverAddress + route+new URLSearchParams({
       location:event.location,
       eventAccess:event.eventAccess,
       text:event.title
-});
+    });
     dp.events.add(e);
     }
   });
@@ -199,4 +222,159 @@ const validateEventAccess = (args) => {
     args.message = "Access required";
   }
 }
+
+const getRoles = async (eventId, key) => {
+  let usersHtml = `<ul class="list-group" id="active-users">`;
+  await fetch(serverAddress + "/event/getUsers?eventId=" + eventId, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      token: key.token,
+    },
+  }).then((response) => {
+    return response.status == 200 ? response.json() : null;
+  }).then((roles) => {
+    console.log("get users response: ", roles)
+    for (let index in roles) {
+      let role = roles[index];
+      const li = document.createElement("li");
+      li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+      const trash = document.createElement("img");
+      trash.src = "./images/trash.png";
+      trash.setAttribute("width", `30px`);
+      trash.setAttribute("height", `30px`);
+      trash.setAttribute("onclick", `removeUserClicked(${eventId}, "${role.user.email}", "${key.token}")`);
+      li.appendChild(trash);
+      li.appendChild(document.createTextNode(role.user.email));
+      const statusSpan = document.createElement("span");
+      statusSpan.classList.add("badge", role.statusType);
+      statusSpan.appendChild(document.createTextNode(role.statusType));
+      li.appendChild(statusSpan);
+      const span = document.createElement("span");
+      span.classList.add("badge", role.roleType);
+      span.setAttribute("onclick", `userRoleClicked(${eventId}, "${role.user.id}", "${key.token}")`);
+      span.appendChild(document.createTextNode(role.roleType));
+      li.appendChild(span);
+      usersHtml += li.outerHTML;
+    }
+  });
+  usersHtml += `<label for="newGuestEmail">New guest:</label><input id="GuestEmailInput" type="text" id="newGuestEmail" name="newGuestEmail">`;
+  const guestButton = document.createElement("button");
+  guestButton.appendChild(document.createTextNode("Invite Guest"));
+  guestButton.setAttribute("onclick", `inviteGuestClicked(${eventId}, "${key.token}")`);
+  usersHtml += guestButton.outerHTML;
+  usersHtml += `</ul>`;
+  console.log(usersHtml);
+  return usersHtml;
+}
+
+const removeUser = (eventId, userEmail, myToken) => {
+  console.log("removing user");
+  fetch(serverAddress + "/event/removeUser?eventId=" + eventId + "&userEmail=" + userEmail, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      token: myToken,
+    },
+  }).then((response) => {
+    console.log("delete role response: ", response.body)
+    if (response.status == 200) {
+      fillCalendar({token:myToken});
+      console.log("deletion role success");
+    } else {
+      alert("cant delete this role!");
+      args.preventDefault();
+    }
+  });
+}
+
+const inviteGuest = (eventId, myToken) => {
+  console.log("inviting guest");
+  fetch(serverAddress + "/event/new/role?eventId=" + eventId + "&userEmail=" + $("#GuestEmailInput").val(), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      token: myToken,
+    },
+  }).then((response) => {
+    console.log("invite guest response: ", response.body)
+    if (response.status == 200) {
+      fillCalendar({token:myToken});
+      console.log("inviting guess success");
+    } else {
+      alert("error inviting this user!");
+      args.preventDefault();
+    }
+  });
+}
+
+const changeUserRole = (eventId, userId, myToken) => {
+  console.log("changing user role");
+  fetch(serverAddress + "/event/update/role/type?eventId=" + eventId + "&userId=" + userId, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      token: myToken,
+    },
+  }).then((response) => {
+    console.log("change user role response: ", response.body)
+    if (response.status == 200) {
+      fillCalendar({token:myToken});
+      console.log("change user role success");
+    } else {
+      alert("error change user role for this user!");
+      args.preventDefault();
+    }
+  });
+}
+
+const getSharedCalendars = async (myToken) => {
+  console.log("getting shared calendars");
+  await fetch(serverAddress + "/sharing/sharedWithMe", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      token: myToken,
+    },
+  }).then((response) => {
+    return response.status == 200 ? response.json() : null;
+  }).then((users) => {
+    $("#sharedCalendarsList").empty();
+    for (let index in users.response) {
+      const emailChoice = document.createElement("li");
+      emailChoice.className = "item";
+      const checkBox = document.createElement("input");
+      checkBox.type = "checkbox";
+      checkBox.name = users.response[index].email;
+      checkBox.value = users.response[index].email;
+      if (index == users.response.length - 1) {
+        checkBox.checked = true;
+      }
+      checkBox.setAttribute("onchange", `resetCalendar({token:"${myToken}"})`);
+      emailChoice.appendChild(checkBox);
+      const label = document.createElement("label");
+      label.htmlFor = users.response[index].email;
+      label.innerText = users.response[index].email;
+      emailChoice.appendChild(label);
+      $("#sharedCalendarsList").append(emailChoice);
+    }
+  });
+}
+
+const getCheckedCalendars = () => {
+  let ul = document.getElementById("sharedCalendarsList");
+  let items = ul.getElementsByClassName("item");
+  let returnValue = [];
+  for (var i =0; i < items.length; i++) {
+    let checkBox = items.item(i).getElementsByTagName("input").item(0);
+    if (checkBox.checked) {
+      returnValue.push(items.item(i).textContent);
+    }
+  }
+  return returnValue;
+}
+window.removeUserClicked = removeUser;
+window.inviteGuestClicked = inviteGuest;
+window.userRoleClicked = changeUserRole;
+window.resetCalendar = fillCalendar;
 export { initArchive };
