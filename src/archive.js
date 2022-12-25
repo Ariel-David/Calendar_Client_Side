@@ -138,16 +138,37 @@ dp.onEventDelete = function (args) {
 
 dp.init();
 
+await getSharedCalendars(key.token);
 fillCalendar(key);
+
+$("#shareCalendarButton").on("click", () => {
+  let email = $("#shareCalendarEmailInput").val();
+  fetch(serverAddress + "/sharing/share?userEmail=" + email, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      token: key.token,
+    },
+  }).then((response) => {
+    console.log("delete response: ", response.body)
+    if (response.status == 200) {
+      console.log("successfully invited user");
+    } else {
+      alert("cant share calendar with this user!");
+    }
+  });
+})
 }
 
 const fillCalendar = (key) => {
   dp.events.list = [];
-  let route = "/event/getBetweenDates?";
+  let route = "/event/getCalendarsBetweenDates?";
+  let emails = getCheckedCalendars();
 console.log("start:" +dp.visibleStart().toString() + "end: "+dp.visibleEnd().toString());
 fetch(serverAddress + route+new URLSearchParams({
   startDate: dp.visibleStart().toString()+"Z",
   endDate: dp.visibleEnd().toString()+"Z",
+  usersEmails: emails.join(","),
 })
 , {
   method: "GET",
@@ -306,7 +327,54 @@ const changeUserRole = (eventId, userId, myToken) => {
     }
   });
 }
+
+const getSharedCalendars = async (myToken) => {
+  console.log("getting shared calendars");
+  await fetch(serverAddress + "/sharing/sharedWithMe", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      token: myToken,
+    },
+  }).then((response) => {
+    return response.status == 200 ? response.json() : null;
+  }).then((users) => {
+    $("#sharedCalendarsList").empty();
+    for (let index in users.response) {
+      const emailChoice = document.createElement("li");
+      emailChoice.className = "item";
+      const checkBox = document.createElement("input");
+      checkBox.type = "checkbox";
+      checkBox.name = users.response[index].email;
+      checkBox.value = users.response[index].email;
+      if (index == users.response.length - 1) {
+        checkBox.checked = true;
+      }
+      checkBox.setAttribute("onchange", `resetCalendar({token:"${myToken}"})`);
+      emailChoice.appendChild(checkBox);
+      const label = document.createElement("label");
+      label.htmlFor = users.response[index].email;
+      label.innerText = users.response[index].email;
+      emailChoice.appendChild(label);
+      $("#sharedCalendarsList").append(emailChoice);
+    }
+  });
+}
+
+const getCheckedCalendars = () => {
+  let ul = document.getElementById("sharedCalendarsList");
+  let items = ul.getElementsByClassName("item");
+  let returnValue = [];
+  for (var i =0; i < items.length; i++) {
+    let checkBox = items.item(i).getElementsByTagName("input").item(0);
+    if (checkBox.checked) {
+      returnValue.push(items.item(i).textContent);
+    }
+  }
+  return returnValue;
+}
 window.removeUserClicked = removeUser;
 window.inviteGuestClicked = inviteGuest;
 window.userRoleClicked = changeUserRole;
+window.resetCalendar = fillCalendar;
 export { initArchive };
