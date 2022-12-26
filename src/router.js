@@ -4,6 +4,7 @@ import { initRegister } from "./register";
 import { initCreateDocument } from "./createDocument";
 import { initCreateDirectory } from "./createDirectory";
 import { initEdit } from "./edit";
+import { initnotify } from "./notifications";
 
 const initRouter = () => {
 
@@ -54,6 +55,14 @@ const urlRoutes = {
     template: "templates/contact.html",
     title: "Contact | " + urlPageTitle,
     description: "This is the contact page",
+  },
+  "/notifications": {
+    template: "templates/notifications.html",
+    title: "Notifications | " + urlPageTitle,
+    description: "This is the notifications settings page",
+    init: () => {
+      initnotify(key);
+    },
   },
   "/archive": {
     template: "templates/archive.html",
@@ -121,7 +130,7 @@ const urlLocationHandler = async () => {
   const html = await fetch(route.template).then((response) => response.text());
   // set the content of the content div to the html
   document.getElementById("content").innerHTML = html;
-  route.init();
+  route.init()
   // set the title of the document to the title of the route
   document.title = route.title;
   // set the description of the document to the description of the route
