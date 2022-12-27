@@ -1,9 +1,6 @@
 import { initArchive } from "./archive";
 import { initLogin } from "./login";
 import { initRegister } from "./register";
-import { initCreateDocument } from "./createDocument";
-import { initCreateDirectory } from "./createDirectory";
-import { initEdit } from "./edit";
 import { initnotify } from "./notifications";
 
 const initRouter = () => {
@@ -78,7 +75,6 @@ const urlRoutes = {
 const urlRoute = async (event) => {
   event = event || window.event; // get window.event if event argument not provided
   event.preventDefault();
-  // window.history.pushState(state, unused, target link);
   window.history.pushState({}, "", event.target.href);
   await urlLocationHandler();
 };
@@ -100,12 +96,6 @@ const urlLocationHandler = async () => {
   // set the content of the content div to the html
   document.getElementById("content").innerHTML = html;
   route.init()
-  // set the title of the document to the title of the route
-  document.title = route.title;
-  // set the description of the document to the description of the route
-  document
-    .querySelector('meta[name="description"]')
-    .setAttribute("content", route.description);
 };
 
 export { initRouter, urlLocationHandler };
