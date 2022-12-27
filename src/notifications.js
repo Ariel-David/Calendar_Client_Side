@@ -11,11 +11,11 @@ const initnotify = async (key) => {
         body: JSON.stringify({
           id:history.state.id,
           eventInvitation: notificationSettings[0],
-          UserStatusChanged: notificationSettings[1],
-          EventDataChanged: notificationSettings[2],
-          EventCancel: notificationSettings[3],
-          UserUninvited: notificationSettings[4],
-          UpcomingEvent: notificationSettings[5],
+          userStatusChanged: notificationSettings[1],
+          eventDataChanged: notificationSettings[2],
+          eventCancel: notificationSettings[3],
+          userUninvited: notificationSettings[4],
+          upcomingEvent: notificationSettings[5],
         }),
         headers: {
           "Content-Type": "application/json",
@@ -68,6 +68,11 @@ function RadioValue() {
              }
         }
       }
+      console.log(eventInvitation,statusChanged
+        ,dataChanged
+        ,eventCancelled
+        ,unInvited
+        ,upcomingEvent);
       return[eventInvitation,statusChanged
         ,dataChanged
         ,eventCancelled
