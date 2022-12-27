@@ -33,6 +33,7 @@ const urlRoutes = {
     template: "templates/404.html",
     title: "404 | " + urlPageTitle,
     description: "Page not found",
+    init: () => {},
   },
   "/": {
     template: "templates/registerAndLogin.html",
@@ -47,11 +48,13 @@ const urlRoutes = {
     template: "templates/about.html",
     title: "About Us | " + urlPageTitle,
     description: "This is the about page",
+    init: () => {},
   },
   "/contact": {
     template: "templates/contact.html",
     title: "Contact | " + urlPageTitle,
     description: "This is the contact page",
+    init: () => {},
   },
   "/notifications": {
     template: "templates/notifications.html",
