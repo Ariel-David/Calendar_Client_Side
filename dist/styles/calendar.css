@@ -208,10 +208,14 @@
 	background-color: green;
 }
 
-.badge.DECLINED {
+.badge.REJECTED {
 	background-color: red;
 }
 
 .badge.TENTATIVE {
 	background-color: grey;
+}
+
+.badge.status {
+	width: fit-content;
 }

@@ -246,10 +246,45 @@ const getRoles = async (eventId, key) => {
       trash.setAttribute("onclick", `removeUserClicked(${eventId}, "${role.user.email}", "${key.token}")`);
       li.appendChild(trash);
       li.appendChild(document.createTextNode(role.user.email));
-      const statusSpan = document.createElement("span");
-      statusSpan.classList.add("badge", role.statusType);
-      statusSpan.appendChild(document.createTextNode(role.statusType));
-      li.appendChild(statusSpan);
+      console.log(key.userId);
+      if (key.userId == role.user.id) {
+        const statusSpan = document.createElement("select");
+        statusSpan.setAttribute('id', "userSpan");
+        const option1 = document.createElement("option");
+        option1.value = "TENTATIVE";
+        option1.appendChild(document.createTextNode("TENTATIVE"));
+        const option2 = document.createElement("option");
+        option2.value = "APPROVED";
+        option2.appendChild(document.createTextNode("APPROVED"));
+        const option3 = document.createElement("option");
+        option3.value = "REJECTED";
+        option3.appendChild(document.createTextNode("REJECTED"));
+        switch (role.statusType) {
+          case "TENTATIVE":
+            option1.setAttribute('selected', "selected")
+            break;
+          case "APPROVED":
+            option2.setAttribute('selected', "selected")
+            break;
+          case "REJECTED":
+            option3.setAttribute('selected', "selected")
+            break;
+          default:
+            break;
+        }
+        statusSpan.appendChild(option1);
+        statusSpan.appendChild(option2);
+        statusSpan.appendChild(option3);
+        statusSpan.setAttribute('onChange', `statusClicked("${key.token}", ${eventId})`)
+        statusSpan.classList.add("badge", role.statusType, "status");
+        li.appendChild(statusSpan);
+      } else {
+        const statusSpan = document.createElement("span");
+        statusSpan.classList.add("badge", role.statusType);
+        statusSpan.appendChild(document.createTextNode(role.statusType));
+        li.appendChild(statusSpan);
+      }
+      
       const span = document.createElement("span");
       span.classList.add("badge", role.roleType);
       span.setAttribute("onclick", `userRoleClicked(${eventId}, "${role.user.id}", "${key.token}")`);
@@ -373,8 +408,29 @@ const getCheckedCalendars = () => {
   }
   return returnValue;
 }
+
+const changeStatus = async (myToken, eventId) => {
+  console.log("getting shared calendars");
+  console.log($("#userSpan")[0].value);
+  await fetch(serverAddress + "/event/update/role/status?eventId=" + eventId + "&status=" + $("#userSpan")[0].value, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      token: myToken,
+    },
+  }).then((response) => {
+    return response.status == 200 ? response.json() : null;
+  }).then((role) => {
+    $("#userSpan").removeClass("TENTATIVE");
+    $("#userSpan").removeClass("APPROVED");
+    $("#userSpan").removeClass("REJECTED");
+    $("#userSpan").addClass($("#userSpan")[0].value);
+  });
+}
+
 window.removeUserClicked = removeUser;
 window.inviteGuestClicked = inviteGuest;
 window.userRoleClicked = changeUserRole;
 window.resetCalendar = fillCalendar;
+window.statusClicked = changeStatus;
 export { initArchive };
