@@ -8,7 +8,6 @@ const socketFactory = () => {
 };
 
 const onMessageReceived = (payload) => {
-  //var message = JSON.parse(payload.body);
   alert(payload.body);
   console.log(payload.body);
 };
