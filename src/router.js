@@ -71,22 +71,6 @@ const urlRoutes = {
     init: () => {
       initArchive(key);
     },
-  },
-  "/edit": {
-    template: "templates/edit.html",
-    title: "Edit | " + urlPageTitle,
-    description: "This is the edit page",
-    init: () => {
-      initEdit(key);
-    },
-  },
-  "/edit-viewer": {
-    template: "templates/editViewer.html",
-    title: "Edit | " + urlPageTitle,
-    description: "This is the edit page",
-    init: () => {
-      initEdit(key);
-    },
   }
  };
 
