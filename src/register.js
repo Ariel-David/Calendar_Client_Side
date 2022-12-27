@@ -1,7 +1,6 @@
 import $ from "jquery";
 import { validateEmail, validatePassword } from "./validations";
 import { serverAddress } from "./constants";
-import { Button } from "bootstrap";
 import {urlLocationHandler} from "./router";
 
 const initRegister = async (key) => {
