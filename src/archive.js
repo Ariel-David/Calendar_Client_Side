@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import {DayPilot} from "@daypilot/daypilot-lite-javascript";
 
 import { serverAddress } from "./constants";
-import { urlLocationHandler } from "./router";
+
 var dp;
 const initArchive = async (key) => {
   dp = new DayPilot.Calendar("dp");

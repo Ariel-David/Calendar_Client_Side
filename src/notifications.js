@@ -1,6 +1,5 @@
 import $ from "jquery";
 import { serverAddress } from "./constants";
-import {urlLocationHandler} from "./router";
 
 const initnotify = async (key) => {
     $("#clickbtn").on("click", () => {

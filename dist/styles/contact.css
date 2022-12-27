@@ -1,7 +1,7 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: #000;
+    background-color: rgba(33, 240, 78, 0.397);
     padding-bottom: 100px;
   }
   
@@ -73,14 +73,14 @@ body {
   
   /* Begin Right Contact Page */
   .direct-contact-container {
-    max-width: 400px;
+    max-width: 500px;
   }
   
   /* Location, Phone, Email Section */
   .contact-list {
     list-style-type: none;
     margin-left: -30px;
-    padding-right:100px;
+    padding-right:30px;
   }
   
   .list-item {

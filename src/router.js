@@ -1,9 +1,6 @@
 import { initArchive } from "./archive";
 import { initLogin } from "./login";
 import { initRegister } from "./register";
-import { initCreateDocument } from "./createDocument";
-import { initCreateDirectory } from "./createDirectory";
-import { initEdit } from "./edit";
 import { initnotify } from "./notifications";
 
 const initRouter = () => {
@@ -36,6 +33,7 @@ const urlRoutes = {
     template: "templates/404.html",
     title: "404 | " + urlPageTitle,
     description: "Page not found",
+    init: () => {},
   },
   "/": {
     template: "templates/registerAndLogin.html",
@@ -50,11 +48,13 @@ const urlRoutes = {
     template: "templates/about.html",
     title: "About Us | " + urlPageTitle,
     description: "This is the about page",
+    init: () => {},
   },
   "/contact": {
     template: "templates/contact.html",
     title: "Contact | " + urlPageTitle,
     description: "This is the contact page",
+    init: () => {},
   },
   "/notifications": {
     template: "templates/notifications.html",
@@ -71,45 +71,13 @@ const urlRoutes = {
     init: () => {
       initArchive(key);
     },
-  },
-  "/edit": {
-    template: "templates/edit.html",
-    title: "Edit | " + urlPageTitle,
-    description: "This is the edit page",
-    init: () => {
-      initEdit(key);
-    },
-  },
-  "/edit-viewer": {
-    template: "templates/editViewer.html",
-    title: "Edit | " + urlPageTitle,
-    description: "This is the edit page",
-    init: () => {
-      initEdit(key);
-    },
-  },
-  "/create-document": {
-    template: "templates/createDocument.html",
-    title: "Create Document | " + urlPageTitle,
-    description: "This is the document page",
-    init: () => {
-      initCreateDocument(key);
-    }},
-    "/create-directory": {
-      template: "templates/createDirectory.html",
-      title: "Create Directory | " + urlPageTitle,
-      description: "This is the directory page",
-      init: () => {
-        initCreateDirectory(key);
-      },
-    }
+  }
  };
 
 // create a function that watches the url and calls the urlLocationHandler
 const urlRoute = async (event) => {
   event = event || window.event; // get window.event if event argument not provided
   event.preventDefault();
-  // window.history.pushState(state, unused, target link);
   window.history.pushState({}, "", event.target.href);
   await urlLocationHandler();
 };
@@ -131,12 +99,6 @@ const urlLocationHandler = async () => {
   // set the content of the content div to the html
   document.getElementById("content").innerHTML = html;
   route.init()
-  // set the title of the document to the title of the route
-  document.title = route.title;
-  // set the description of the document to the description of the route
-  document
-    .querySelector('meta[name="description"]')
-    .setAttribute("content", route.description);
 };
 
 export { initRouter, urlLocationHandler };
