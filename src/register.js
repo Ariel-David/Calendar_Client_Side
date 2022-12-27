@@ -26,6 +26,7 @@ const initRegister = async (key) => {
       console.log(data);
        if (data != null) {
         key.token = data.token;
+        key.userId = data.response.id;
         window.history.pushState({}, "", "/archive");
         await urlLocationHandler();
         }
