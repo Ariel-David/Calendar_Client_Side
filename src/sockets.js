@@ -1,8 +1,6 @@
 import * as SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
 import { serverAddress } from "./constants";
-import { update} from './edit';
-/// import { update } from './doc-functions';
 
 let stompClient;
 const socketFactory = () => {
@@ -10,39 +8,21 @@ const socketFactory = () => {
 };
 
 const onMessageReceived = (payload) => {
-  var message = JSON.parse(payload.body);
-  console.log(message);
-  update(message);
+  //var message = JSON.parse(payload.body);
+  alert(payload.body);
+  console.log(payload.body);
 };
 
-const onConnected = () => {
+const onConnected = (email) => {
   console.log("on connected");
-  stompClient.subscribe("/topic/updates", onMessageReceived);
-  stompClient.send("/app/hello", [], JSON.stringify({ name: "Default user" }));
+  stompClient.subscribe("/notifications/" + email, onMessageReceived);
 };
 
-const openConnection = () => {
+const openConnection = (email) => {
   console.log("on open connected");
   const socket = socketFactory();
   stompClient = Stomp.over(socket);
-  stompClient.connect({}, onConnected);
+  stompClient.connect({}, () => {onConnected(email)});
 };
 
-
-const addUpdate = (token,content, position,startPos,endPos,docId) => {
-  sendUpate(token, "APPEND", content, position,startPos,endPos,docId)
-}
-const sendUpate = (user, type, content, position,startPos,endPos,docId) => {
-  console.log(user + "sendUpdate");
-  stompClient.send("/app/update", [], JSON.stringify({
-      user: user,
-      type: type,
-      content: content,
-      position: position,
-      startPos: startPos,
-      endPos: endPos,
-      docId: docId
-      }))
-}
-
-export { openConnection, addUpdate };
+export { openConnection };

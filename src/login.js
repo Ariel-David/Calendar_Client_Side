@@ -2,6 +2,7 @@ import $ from "jquery";
 import { serverAddress } from "./constants";
 import { urlLocationHandler } from "./router";
 import { validateEmail, validatePassword } from "./validations";
+import { openConnection } from './sockets';
 
 const initLogin = (key) => {
   $("#login-button").on("click", async () => {
@@ -26,6 +27,7 @@ const initLogin = (key) => {
           console.log(data);
            if (data != null) {
              key.token = data.token;
+             openConnection($("#login-email").val());
             window.history.pushState({}, "", "/archive");
             await urlLocationHandler();
             }

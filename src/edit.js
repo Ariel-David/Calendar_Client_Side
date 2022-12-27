@@ -1,6 +1,5 @@
 // import 'https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap';
 import $ from "jquery";
-import { addUpdate } from "./sockets";
 import { serverAddress } from "./constants";
 import { validateEmail } from "./validations";
 
@@ -196,52 +195,4 @@ const initEdit = async (key) => {
   });
 };
 
-const update = (updateData) => {
-  let textArea = $("#text-area");
-  let start = textArea.prop("selectionStart");
-
-  if (
-    updateData.user != history.state.token &&
-    updateData.docId == history.state.id
-  ) {
-    let text = textArea.val();
-    if (updateData.content == null && updateData.startPos < updateData.endPos) {
-      console.log("im here1");
-      text =
-        text.substring(0, updateData.startPos) +
-        text.substring(updateData.endPos, text.length);
-    } else if(updateData.content == null && updateData.startPos <text.length && updateData.startPos == updateData.endPos && updateData.endPos == updateData.position){
-      text =
-      text.substring(0, updateData.position) +"\n"+
-      text.substring(updateData.position, text.length);
-      console.log("yes");
-    }
-     else if(updateData.content == null && updateData.startPos == updateData.endPos && updateData.endPos == updateData.position){
-      console.log("im here2");
-      text =
-        text.substring(0, updateData.position + 1) +
-        text.substring(updateData.position + 2, text.length)+  "\n";
-    } 
-    else if (updateData.content == null) {
-      console.log("im here3");
-      text =
-        text.substring(0, updateData.position + 1) +
-        text.substring(updateData.position + 2, text.length);
-    }
-    else {
-      text =
-        text.substring(0, updateData.position) +
-        updateData.content +
-        text.substring(updateData.position, text.length);
-    }
-    textArea.val(text);
-    if (updateData.position < start) {
-      start++;
-      textArea[0].setSelectionRange(start, start);
-    }
-  }
-};
-
-
-
-export { initEdit, update };
+export { initEdit };
