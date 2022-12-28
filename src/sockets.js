@@ -1,7 +1,7 @@
 import * as SockJS from "sockjs-client";
 import { Stomp } from "@stomp/stompjs";
 import { serverAddress } from "./constants";
-import {fillCalendar} from "./archive";
+import {fillCalendar, getSharedCalendars} from "./archive";
 
 let stompClient;
 const socketFactory = () => {
@@ -21,7 +21,7 @@ const onUpdateReceived = (payload, key) => {
     fillCalendar(key);
   }
   else{
-    console.log("hi");
+    getSharedCalendars(key.token);
   }
 };
 

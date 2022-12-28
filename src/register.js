@@ -13,7 +13,7 @@ const initRegister = async (key) => {
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
   if (params.code != undefined) {
-    fetch(serverAddress + "/auth/gitHub?code=" + params.code, {
+    fetch(serverAddress + "/auth/github/login?code=" + params.code, {
       method: "POST",
       body: JSON.stringify(),
       headers: {
