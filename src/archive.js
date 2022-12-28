@@ -311,6 +311,7 @@ const getRoles = async (eventId, key) => {
       
       const span = document.createElement("span");
       span.classList.add("badge", role.roleType);
+      span.setAttribute('id', "roleSpan" + role.user.id);
       span.setAttribute("onclick", `userRoleClicked(${eventId}, "${role.user.id}", "${key.token}")`);
       span.appendChild(document.createTextNode(role.roleType));
       li.appendChild(span);
@@ -378,12 +379,16 @@ const changeUserRole = (eventId, userId, myToken) => {
   }).then((response) => {
     console.log("change user role response: ", response.body)
     if (response.status == 200) {
-      fillCalendar({token:myToken});
-      console.log("change user role success");
+      return response.json();
     } else {
-      alert("error change user role for this user!");
-      args.preventDefault();
+      alert("error changing user role for this user!");
+      return null;
     }
+  }).then((jsonResponse) => {
+    $("#roleSpan" + userId).removeClass($("#roleSpan" + userId)[0].innerText);
+    $("#roleSpan" + userId).addClass(jsonResponse.response.roleType);
+    $("#roleSpan" + userId)[0].innerText = jsonResponse.response.roleType;
+    console.log("change user role success");
   });
 }
 
