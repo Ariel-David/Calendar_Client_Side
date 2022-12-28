@@ -79,6 +79,8 @@ dp.onEventClick = async function (args) {
     {name: "Public", id: "PUBLIC"}
   ];
   let usersHtml = await getRoles(args.e.data.id, key)
+
+  let notificationHtml = await getNotificationHTML(args.e.data.id, key);
   
   const form = [
     {name: "Access", id: "eventAccess", type: "select", options:accessibility, onValidate: validateEventAccess},
@@ -87,7 +89,8 @@ dp.onEventClick = async function (args) {
     {name: "End - if empty takes current day", id: "end", type: "datetime", onValidate: validateDate},
     {name: "Location", id: "location"},
     {name: "description", id: "description"},
-    {name: "users", id: "users", type: "html", html:usersHtml}
+    {name: "users", id: "users", type: "html", html:usersHtml},
+    {name: "notification", id: "notification", type: "html", html:notificationHtml}
   ];
 
   let originalData = JSON.parse(JSON.stringify(args.e.data));
@@ -528,7 +531,7 @@ const updateUsersRolesList = async (key, eventId) => {
       newInnerHtml += li.outerHTML;
     }
   });
-  newInnerHtml += `<label for="newGuestEmail">New guest:</label><input id="GuestEmailInput" type="text" id="newGuestEmail" name="newGuestEmail">`;
+  newInnerHtml += `<label for="newGuestEmail">New guest:</label><select id="GuestEmailInput" id="newGuestEmail" name="newGuestEmail">`;
   const guestButton = document.createElement("button");
   guestButton.appendChild(document.createTextNode("Invite Guest"));
   guestButton.setAttribute("onclick", `inviteGuestClicked(${eventId}, "${key.token}")`);
@@ -536,9 +539,57 @@ const updateUsersRolesList = async (key, eventId) => {
   $("#active-users")[0].innerHTML = newInnerHtml;
 }
 
+const getNotificationHTML = async (eventId, key) => {
+  const notificationSpan = document.createElement("select");
+  notificationSpan.setAttribute('id', "upcomingSpan");
+  const option1 = document.createElement("option");
+  option1.value = "ONE_DAY";
+  option1.appendChild(document.createTextNode("one day"));
+  const option2 = document.createElement("option");
+  option2.value = "THREE_HOURS";
+  option2.appendChild(document.createTextNode("three hours"));
+  const option3 = document.createElement("option");
+  option3.value = "ONE_HOUR";
+  option3.appendChild(document.createTextNode("one hour"));
+  const option4 = document.createElement("option");
+  option4.value = "HALF_HOUR";
+  option4.appendChild(document.createTextNode("half hour"));
+  const option5 = document.createElement("option");
+  option5.value = "TEN_MIN";
+  option5.appendChild(document.createTextNode("ten minutes"));
+  notificationSpan.appendChild(option1);
+  notificationSpan.appendChild(option2);
+  notificationSpan.appendChild(option3);
+  notificationSpan.appendChild(option4);
+  notificationSpan.appendChild(option5);
+  const setButton = document.createElement("button");
+  setButton.appendChild(document.createTextNode("Set Notification"));
+  setButton.setAttribute("onclick", `setNotificationClicked(${eventId}, "${key.token}")`);
+  return "<span>" + notificationSpan.outerHTML + setButton.outerHTML + "</span>";
+}
+
+const setUpcomingNotification = (eventId, myToken) => {
+  console.log("changing user role");
+  fetch(serverAddress + "/notifications/upcoming?eventId=" + eventId + "&timing=" + $("#upcomingSpan")[0].value, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      token: myToken,
+    },
+  }).then((response) => {
+    console.log("set notification: ", response.body)
+    if (response.status == 200) {
+      alert("Successfully added notification!");
+    } else {
+      alert("error setting notification!");
+    }
+  });
+}
+
 window.removeUserClicked = removeUser;
 window.inviteGuestClicked = inviteGuest;
 window.userRoleClicked = changeUserRole;
 window.resetCalendar = fillCalendar;
 window.statusClicked = changeStatus;
+window.setNotificationClicked = setUpcomingNotification;
 export { initArchive , fillCalendar, getSharedCalendars };
