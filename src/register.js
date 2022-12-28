@@ -2,6 +2,7 @@ import $ from "jquery";
 import { validateEmail, validatePassword } from "./validations";
 import { serverAddress } from "./constants";
 import {urlLocationHandler} from "./router";
+import { openConnection } from "./sockets";
 
 const initRegister = async (key) => {
   const CLIENT_ID = "2298388bcf5985aa7bcb";
@@ -23,10 +24,11 @@ const initRegister = async (key) => {
     }).then((response) => {
       return response.status == 200 ? response.json() : null;
     }).then(async (data) => {
-      console.log(data);
+      console.log("dataaaaaaaaaaaaaaaaaa:",data);
        if (data != null) {
         key.token = data.token;
         key.userId = data.response.id;
+        openConnection(data.response.email, key);
         window.history.pushState({}, "", "/archive");
         await urlLocationHandler();
         }

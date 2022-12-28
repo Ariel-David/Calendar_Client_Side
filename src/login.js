@@ -27,7 +27,7 @@ const initLogin = (key) => {
            if (data != null) {
              key.token = data.token;
              key.userId = data.response.id;
-             openConnection($("#login-email").val());
+             openConnection($("#login-email").val(), key);
             window.history.pushState({}, "", "/archive");
             await urlLocationHandler();
             }

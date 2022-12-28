@@ -117,7 +117,6 @@ dp.onEventClick = async function (args) {
 }
 //delete
 dp.onEventDelete = function (args) {
-  console.log(args.e.data);
   fetch(serverAddress + "/event/delete?eventId=" + args.e.data.id, {
     method: "DELETE",
     headers: {
@@ -125,13 +124,14 @@ dp.onEventDelete = function (args) {
       token: key.token,
     },
   }).then((response) => {
-    console.log("delete response: ", response.body)
     if (response.status == 200) {
       fillCalendar(key);
       console.log("deletion success");
     } else {
-      alert("cant delete this event!");
-      args.preventDefault();
+      fillCalendar(key);
+      setTimeout(() => {
+        alert("cant delete this event!");
+      }, 500);
     }
   });
 }
@@ -433,4 +433,4 @@ window.inviteGuestClicked = inviteGuest;
 window.userRoleClicked = changeUserRole;
 window.resetCalendar = fillCalendar;
 window.statusClicked = changeStatus;
-export { initArchive };
+export { initArchive , fillCalendar };
