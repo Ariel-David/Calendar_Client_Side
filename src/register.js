@@ -11,9 +11,7 @@ const initRegister = async (key) => {
     window.location.assign("https://github.com/login/oauth/authorize?scope=user:email&client_id=" + CLIENT_ID);
   });
   const urlSearchParams = new URLSearchParams(window.location.search);
-  console.log(urlSearchParams);
   const params = Object.fromEntries(urlSearchParams.entries());
-  console.log(params.code);
   if (params.code != undefined) {
     fetch(serverAddress + "/auth/gitHub?code=" + params.code, {
       method: "POST",
@@ -24,7 +22,6 @@ const initRegister = async (key) => {
     }).then((response) => {
       return response.status == 200 ? response.json() : null;
     }).then(async (data) => {
-      console.log("dataaaaaaaaaaaaaaaaaa:",data);
        if (data != null) {
         key.token = data.token;
         key.userId = data.response.id;
