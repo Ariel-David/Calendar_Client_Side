@@ -2,6 +2,20 @@ import $ from "jquery";
 import { serverAddress } from "./constants";
 
 const initnotify = async (key) => {
+  fetch(serverAddress + "/notifications/getNotificationsSettings", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      token: key.token,
+    },
+  }).then((response) => {
+    return response.status == 200 ? response.json() : null;
+  }).then((notificationOfUser) => {
+    console.log(notificationOfUser)
+        setRadioValue(notificationOfUser);
+  });
+
+
     $("#clickbtn").on("click", () => {
         let notificationSettings = RadioValue();
         console.log(notificationSettings);
@@ -34,6 +48,7 @@ const initnotify = async (key) => {
 function RadioValue() {
     document.getElementById("result").innerHTML = "";
     var ele = document.getElementsByTagName('input');
+    let notifyArr = []
     let eventInvitation;
     let statusChanged;
     let dataChanged;
@@ -67,16 +82,50 @@ function RadioValue() {
              }
         }
       }
+      notifyArr = [eventInvitation
+        ,statusChanged
+         ,dataChanged
+        ,eventCancelled
+         ,unInvited
+         ,upcomingEvent];
+
       console.log(eventInvitation,statusChanged
         ,dataChanged
         ,eventCancelled
         ,unInvited
         ,upcomingEvent);
-      return[eventInvitation,statusChanged
-        ,dataChanged
-        ,eventCancelled
-        ,unInvited
-        ,upcomingEvent];
+
+      return notifyArr;
+}
+
+function setRadioValue(notificationOfUser) {
+   let groups = document.getElementsByClassName('custom-select');
+  let notifyArr = ["eventInvitation"
+    ,"userStatusChanged"
+     ,"eventDataChanged"
+    ,"eventCancel"
+     ,"userUninvited"
+     ,"upcomingEvent"];
+
+  for(let i = 0; i < groups.length; i++) {
+    let g = groups[i].getElementsByTagName('input');
+   let type = notifyArr[i];
+   let pos = notificationOfUser[notifyArr[i]];
+            console.log("notifyArr[i]",type);
+            console.log("notificationOfUser[notifyArr[i]]",pos);
+            if(pos === 'None'){
+              g[0].checked = true;
+            }
+            else if(pos === 'Email'){
+              g[1].checked = true;
+            }
+            else if(pos === 'Popup'){
+              g[2].checked = true;
+            }
+            else{
+              g[3].checked = true;
+            }
+  }
 }
 
 
