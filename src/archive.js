@@ -79,6 +79,8 @@ dp.onEventClick = async function (args) {
     {name: "Public", id: "PUBLIC"}
   ];
   let usersHtml = await getRoles(args.e.data.id, key)
+
+  let notificationHtml = await getNotificationHTML(args.e.data.id, key);
   
   const form = [
     {name: "Access", id: "eventAccess", type: "select", options:accessibility, onValidate: validateEventAccess},
@@ -87,7 +89,8 @@ dp.onEventClick = async function (args) {
     {name: "End - if empty takes current day", id: "end", type: "datetime", onValidate: validateDate},
     {name: "Location", id: "location"},
     {name: "description", id: "description"},
-    {name: "users", id: "users", type: "html", html:usersHtml}
+    {name: "users", id: "users", type: "html", html:usersHtml},
+    {name: "notification", id: "notification", type: "html", html:notificationHtml}
   ];
 
   let originalData = JSON.parse(JSON.stringify(args.e.data));
@@ -311,6 +314,7 @@ const getRoles = async (eventId, key) => {
       
       const span = document.createElement("span");
       span.classList.add("badge", role.roleType);
+      span.setAttribute('id', "roleSpan" + role.user.id);
       span.setAttribute("onclick", `userRoleClicked(${eventId}, "${role.user.id}", "${key.token}")`);
       span.appendChild(document.createTextNode(role.roleType));
       li.appendChild(span);
@@ -338,11 +342,10 @@ const removeUser = (eventId, userEmail, myToken) => {
   }).then((response) => {
     console.log("delete role response: ", response.body)
     if (response.status == 200) {
-      fillCalendar({token:myToken});
+      updateUsersRolesList({token:myToken}, eventId);
       console.log("deletion role success");
     } else {
       alert("cant delete this role!");
-      args.preventDefault();
     }
   });
 }
@@ -358,11 +361,12 @@ const inviteGuest = (eventId, myToken) => {
   }).then((response) => {
     console.log("invite guest response: ", response.body)
     if (response.status == 200) {
-      fillCalendar({token:myToken});
+      updateUsersRolesList({token:myToken}, eventId);
+      //fillCalendar({token:myToken});
       console.log("inviting guess success");
     } else {
       alert("error inviting this user!");
-      args.preventDefault();
+      //args.preventDefault();
     }
   });
 }
@@ -378,12 +382,16 @@ const changeUserRole = (eventId, userId, myToken) => {
   }).then((response) => {
     console.log("change user role response: ", response.body)
     if (response.status == 200) {
-      fillCalendar({token:myToken});
-      console.log("change user role success");
+      return response.json();
     } else {
-      alert("error change user role for this user!");
-      args.preventDefault();
+      alert("error changing user role for this user!");
+      return null;
     }
+  }).then((jsonResponse) => {
+    $("#roleSpan" + userId).removeClass($("#roleSpan" + userId)[0].innerText);
+    $("#roleSpan" + userId).addClass(jsonResponse.response.roleType);
+    $("#roleSpan" + userId)[0].innerText = jsonResponse.response.roleType;
+    console.log("change user role success");
   });
 }
 
@@ -452,9 +460,136 @@ const changeStatus = async (myToken, eventId) => {
   });
 }
 
+const updateUsersRolesList = async (key, eventId) => {
+  let newInnerHtml = ""
+  await fetch(serverAddress + "/event/getUsers?eventId=" + eventId, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      token: key.token,
+    },
+  }).then((response) => {
+    return response.status == 200 ? response.json() : null;
+  }).then((roles) => {
+    console.log("get users response: ", roles)
+    for (let index in roles) {
+      let role = roles[index];
+      const li = document.createElement("li");
+      li.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+      const trash = document.createElement("img");
+      trash.src = "./images/trash.png";
+      trash.setAttribute("width", `30px`);
+      trash.setAttribute("height", `30px`);
+      trash.setAttribute("onclick", `removeUserClicked(${eventId}, "${role.user.email}", "${key.token}")`);
+      li.appendChild(trash);
+      li.appendChild(document.createTextNode(role.user.email));
+      console.log(key.userId);
+      if (key.userId == role.user.id) {
+        const statusSpan = document.createElement("select");
+        statusSpan.setAttribute('id', "userSpan");
+        const option1 = document.createElement("option");
+        option1.value = "TENTATIVE";
+        option1.appendChild(document.createTextNode("TENTATIVE"));
+        const option2 = document.createElement("option");
+        option2.value = "APPROVED";
+        option2.appendChild(document.createTextNode("APPROVED"));
+        const option3 = document.createElement("option");
+        option3.value = "REJECTED";
+        option3.appendChild(document.createTextNode("REJECTED"));
+        switch (role.statusType) {
+          case "TENTATIVE":
+            option1.setAttribute('selected', "selected")
+            break;
+          case "APPROVED":
+            option2.setAttribute('selected', "selected")
+            break;
+          case "REJECTED":
+            option3.setAttribute('selected', "selected")
+            break;
+          default:
+            break;
+        }
+        statusSpan.appendChild(option1);
+        statusSpan.appendChild(option2);
+        statusSpan.appendChild(option3);
+        statusSpan.setAttribute('onChange', `statusClicked("${key.token}", ${eventId})`)
+        statusSpan.classList.add("badge", role.statusType, "status");
+        li.appendChild(statusSpan);
+      } else {
+        const statusSpan = document.createElement("span");
+        statusSpan.classList.add("badge", role.statusType);
+        statusSpan.appendChild(document.createTextNode(role.statusType));
+        li.appendChild(statusSpan);
+      }
+      
+      const span = document.createElement("span");
+      span.classList.add("badge", role.roleType);
+      span.setAttribute('id', "roleSpan" + role.user.id);
+      span.setAttribute("onclick", `userRoleClicked(${eventId}, "${role.user.id}", "${key.token}")`);
+      span.appendChild(document.createTextNode(role.roleType));
+      li.appendChild(span);
+      newInnerHtml += li.outerHTML;
+    }
+  });
+  newInnerHtml += `<label for="newGuestEmail">New guest:</label><select id="GuestEmailInput" id="newGuestEmail" name="newGuestEmail">`;
+  const guestButton = document.createElement("button");
+  guestButton.appendChild(document.createTextNode("Invite Guest"));
+  guestButton.setAttribute("onclick", `inviteGuestClicked(${eventId}, "${key.token}")`);
+  newInnerHtml += guestButton.outerHTML; 
+  $("#active-users")[0].innerHTML = newInnerHtml;
+}
+
+const getNotificationHTML = async (eventId, key) => {
+  const notificationSpan = document.createElement("select");
+  notificationSpan.setAttribute('id', "upcomingSpan");
+  const option1 = document.createElement("option");
+  option1.value = "ONE_DAY";
+  option1.appendChild(document.createTextNode("one day"));
+  const option2 = document.createElement("option");
+  option2.value = "THREE_HOURS";
+  option2.appendChild(document.createTextNode("three hours"));
+  const option3 = document.createElement("option");
+  option3.value = "ONE_HOUR";
+  option3.appendChild(document.createTextNode("one hour"));
+  const option4 = document.createElement("option");
+  option4.value = "HALF_HOUR";
+  option4.appendChild(document.createTextNode("half hour"));
+  const option5 = document.createElement("option");
+  option5.value = "TEN_MIN";
+  option5.appendChild(document.createTextNode("ten minutes"));
+  notificationSpan.appendChild(option1);
+  notificationSpan.appendChild(option2);
+  notificationSpan.appendChild(option3);
+  notificationSpan.appendChild(option4);
+  notificationSpan.appendChild(option5);
+  const setButton = document.createElement("button");
+  setButton.appendChild(document.createTextNode("Set Notification"));
+  setButton.setAttribute("onclick", `setNotificationClicked(${eventId}, "${key.token}")`);
+  return "<span>" + notificationSpan.outerHTML + setButton.outerHTML + "</span>";
+}
+
+const setUpcomingNotification = (eventId, myToken) => {
+  console.log("changing user role");
+  fetch(serverAddress + "/notifications/upcoming?eventId=" + eventId + "&timing=" + $("#upcomingSpan")[0].value, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      token: myToken,
+    },
+  }).then((response) => {
+    console.log("set notification: ", response.body)
+    if (response.status == 200) {
+      alert("Successfully added notification!");
+    } else {
+      alert("error setting notification!");
+    }
+  });
+}
+
 window.removeUserClicked = removeUser;
 window.inviteGuestClicked = inviteGuest;
 window.userRoleClicked = changeUserRole;
 window.resetCalendar = fillCalendar;
 window.statusClicked = changeStatus;
+window.setNotificationClicked = setUpcomingNotification;
 export { initArchive , fillCalendar, getSharedCalendars };
