@@ -90,13 +90,37 @@ dp.onEventClick = async function (args) {
     {name: "users", id: "users", type: "html", html:usersHtml}
   ];
 
+  let originalData = JSON.parse(JSON.stringify(args.e.data));
   const modal = await DayPilot.Modal.form(form, args.e.data);
   if (modal.canceled) {
     return;
   }
-  modal.result.start = modal.result.start.toString() + "Z";
-  modal.result.end = modal.result.end.toString() + "Z";
-  console.log(modal.result);
+  if (modal.result.title == originalData.title) {
+    delete modal.result.title;
+  }
+  if (modal.result.description == originalData.description) {
+    delete modal.result.description;
+  }
+  if (modal.result.eventAccess == originalData.eventAccess) {
+    delete modal.result.eventAccess;
+  }
+  if (modal.result.location == originalData.location) {
+    delete modal.result.location;
+  }
+  if (modal.result.end == originalData.end) {
+    delete modal.result.end;
+  } else {
+    modal.result.end = modal.result.end.toString() + "Z";
+  }
+  if (modal.result.start == originalData.start) {
+    delete modal.result.start;
+  } else {
+    modal.result.start = modal.result.start.toString() + "Z";
+  }
+  if (Object.keys(modal.result).length == 2) {
+    return;
+  }
+
   fetch(serverAddress + "/event/update?eventId=" + modal.result.id, {
     method: "PUT",
     body: JSON.stringify(modal.result),
