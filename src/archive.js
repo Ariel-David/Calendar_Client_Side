@@ -457,4 +457,4 @@ window.inviteGuestClicked = inviteGuest;
 window.userRoleClicked = changeUserRole;
 window.resetCalendar = fillCalendar;
 window.statusClicked = changeStatus;
-export { initArchive , fillCalendar };
+export { initArchive , fillCalendar, getSharedCalendars };
