@@ -189,6 +189,7 @@ $("#shareCalendarButton").on("click", () => {
 
 const fillCalendar = (key) => {
   dp.events.list = [];
+  dp.update();
   let route = "/event/getCalendarsBetweenDates?";
   let emails = getCheckedCalendars();
 console.log("start:" +dp.visibleStart().toString() + "end: "+dp.visibleEnd().toString());
@@ -222,6 +223,7 @@ fetch(serverAddress + route+new URLSearchParams({
     });
     dp.events.add(e);
     }
+    dp.update();
   });
 }
 
